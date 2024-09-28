@@ -1,0 +1,1 @@
+/home/micheleunipr/Unipr/Paradigmi_e_linguaggi/lab/rust/gui/target/debug/gui: /home/micheleunipr/Unipr/Paradigmi_e_linguaggi/lab/rust/gui/src/lib.rs /home/micheleunipr/Unipr/Paradigmi_e_linguaggi/lab/rust/gui/src/main.rs
