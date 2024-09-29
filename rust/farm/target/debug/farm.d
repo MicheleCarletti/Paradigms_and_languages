@@ -1,0 +1,1 @@
+/home/micheleunipr/Unipr/Paradigmi_e_linguaggi/lab/rust/farm/target/debug/farm: /home/micheleunipr/Unipr/Paradigmi_e_linguaggi/lab/rust/farm/src/lib.rs /home/micheleunipr/Unipr/Paradigmi_e_linguaggi/lab/rust/farm/src/main.rs
