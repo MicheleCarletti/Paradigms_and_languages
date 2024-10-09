@@ -18,7 +18,7 @@ impl Animal for Sheep {
 }
 
 fn main() {
-    // Define a farm with a dog a cat and two pigs
+    // Define a farm with a dog a cat two pigs and a sheep
     let myfarm = Farm {
         animals: vec! [
             Box::new(Dog::new("Danny")),
