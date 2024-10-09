@@ -1,3 +1,5 @@
+/* Leggere un file verificando l'esito dell'operazione*/
+
 use std::fs;
 
 fn main() {
