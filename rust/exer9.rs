@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 fn main() {
-    let mut x = vec![10,20,30,40,40,10,20];
+    let mut x = vec![1, 2, 2, 3, 4, 4, 4, 5, 5, 6];
 
     let media = calcola_media(&x);
     let mediana = calcola_mediana(&mut x);
@@ -30,6 +30,7 @@ fn calcola_mediana(v: &mut Vec<i32>) -> f64 {
 }
 
 fn calcola_moda(v: &Vec<i32>) -> i32 {
+    /* Usa una HashMap per contare la frequenza di ogni numero, trova il numero con frequenza massima*/
     let mut frequenza = HashMap::new();
     for &num in v {
         *frequenza.entry(num).or_insert(0) += 1;
