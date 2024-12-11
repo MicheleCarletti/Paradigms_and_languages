@@ -17,7 +17,8 @@ type Obstacles = [Position]
 data GameState = GameState {
     playerPosition :: Position,
     obstacles :: Obstacles,
-    enemyPosition :: Position   -- enemy randomly spawning in the arena
+    enemyPosition :: Position,   -- enemy randomly spawning in the arena
+    won :: Bool
 } deriving (Show)
 
 -- Check wether a cell is valid
@@ -31,11 +32,14 @@ randomPosition gen =
         (y, _) = randomR (0, arenaHeight-1) gen'
     in (x, y)
 
+-- Check if player won
+wonGame :: String
+wonGame = "Congratulation you won!"
 
 -- Player and enemy moves
 movePlayer :: String -> GameState -> IO GameState
 movePlayer [] state = return state -- Blank input, keep the state
-movePlayer (dir:_) (GameState (x,y) obs (ex,ey)) = do
+movePlayer (dir:_) (GameState (x,y) obs (ex,ey) _) = do
 
     let newPos = case dir of 
             'w' -> (x, max 0 (y-1))   -- Move forward
@@ -46,18 +50,23 @@ movePlayer (dir:_) (GameState (x,y) obs (ex,ey)) = do
 
     -- Check if the new position is valid
     let playerPos = if isValidPosition newPos obs then newPos else (x,y)
-    -- New position for the enemy
-    gen <- newStdGen
-    let (ex',ey') = randomPosition gen
-    -- Check wheter player and enemy are on the same cell
-    if playerPos == (ex',ey')
-        then error "Game Over: you have been caught!"
-        else return $ GameState playerPos obs (ex',ey') 
+    let (_, py) = playerPos
+    if py == 0 
+        then return $ GameState playerPos obs (ex, ey) True
+        else do
+
+            -- New position for the enemy
+            gen <- newStdGen
+            let (ex',ey') = randomPosition gen
+            -- Check wheter player and enemy are on the same cell
+            if playerPos == (ex',ey')
+                then error "Game Over: you have been caught!"
+                else return $ GameState playerPos obs (ex',ey') False
     
 
 -- Render the arena. The player is represented by 'P', obstacles as '#', enemy as E and empty cells are marked as '.'
 renderArena :: GameState -> String
-renderArena (GameState (px,py) obs (ex,ey)) =
+renderArena (GameState (px,py) obs (ex,ey) _) =
     unlines [[if (x,y) == (px,py) then 'P'  -- Player
              else if (x,y) == (ex,ey) then 'E'  -- Enemy
              else if (x,y) `elem` obs then '#'  -- Obstacle
@@ -70,13 +79,15 @@ renderArena (GameState (px,py) obs (ex,ey)) =
 gameLoop :: GameState -> IO ()
 gameLoop state = do
     putStrLn $ renderArena state
-    putStrLn "Move with W (up), A (left), S (down), D (right). Q to quit"
-    input <- getLine
-    if input == "q"
-        then putStrLn "Goodbye!"
-        else do 
-            newState <- movePlayer input state
-            gameLoop newState
+    if won state then putStrLn "You won!"   -- Check if the field won of state is True
+        else do
+        putStrLn "Move with W (up), A (left), S (down), D (right). Q to quit"
+        input <- getLine
+        if input == "q"
+            then putStrLn "Goodbye!"
+            else do
+                newState <- movePlayer input state
+                gameLoop newState
 
 
 -- Start the game
@@ -84,7 +95,7 @@ main :: IO ()
 main = do
     putStrLn "Welcome to the game!"
     gen <- newStdGen
-    let initialObstacles = [(3,3), (4,6), (7,2)]    -- Obstacles
+    let initialObstacles = [(0,7), (4,6), (7,2)]    -- Obstacles
     let initialEnemyPos = randomPosition gen 
-    let initialState = GameState (5,5) initialObstacles initialEnemyPos -- Player in the center
+    let initialState = GameState (0,arenaHeight-1) initialObstacles initialEnemyPos False -- Player in the center
     gameLoop initialState
