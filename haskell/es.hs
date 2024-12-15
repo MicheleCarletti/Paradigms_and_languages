@@ -6,9 +6,12 @@ fattoriale :: Int -> Int
 fattoriale 0 = 1
 fattoriale n = n * fattoriale (n-1)
 
+myEven :: (Integral a) => a -> Bool
+myEven x = mod x 2 == 0
+
 pari :: [Int] -> [Int]
 pari [] = []
-pari xs = filter even xs
+pari xs = filter myEven xs
 
 listaNumeri :: Int -> [Int]
 listaNumeri 0 = []
