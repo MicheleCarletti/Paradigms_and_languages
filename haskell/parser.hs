@@ -1,4 +1,5 @@
 -- Parser for math expressions based on Abstract Syntax Tree (AST)
+import Data.Bits (xor)
 
 data Expr = Add Expr Expr   -- Sum
     | Sub Expr Expr -- Subtraction
@@ -7,6 +8,7 @@ data Expr = Add Expr Expr   -- Sum
     | Pow Expr Expr -- Power
     | And Expr Expr -- Logic and
     | Or Expr Expr  -- Logic or
+    | Xor Expr Expr  -- Logic xor
     | Not Expr  -- Login not
     | Val Double    -- Numeric value
     | BoolVal Bool  -- Boolean value
@@ -85,6 +87,9 @@ parseLogic input =
         parseLogic' left ('|':'|':xs) =
             let (right, rest) = parseExpr xs
             in parseLogic' (Or left right) rest
+        parseLogic' left ('X':'o':'r':xs) =
+            let (right, rest) = parseExpr xs
+            in parseLogic' (Xor left right) rest
         parseLogic' left right = (left, right)
 
 -- Parsing function
@@ -114,6 +119,7 @@ evalBool (BoolVal b) = b    -- A single value
 evalBool (And e1 e2) = evalBool e1 && evalBool e2
 evalBool (Or e1 e2) = evalBool e1 || evalBool e2
 evalBool (Not e1) = not(evalBool e1)
+evalBool (Xor e1 e2) = evalBool e1 `xor` evalBool e2
 evalBool _ = error "Error: boolean operation or non-boolean value"
 
 main::IO ()
@@ -128,6 +134,7 @@ main = do
         BoolVal _ -> print(evalBool ast)
         And _ _ -> print(evalBool ast)
         Or _  _-> print(evalBool ast)
+        Xor _ _ -> print(evalBool ast)
         Not _ -> print(evalBool ast)
         _ -> print(eval ast) 
       
