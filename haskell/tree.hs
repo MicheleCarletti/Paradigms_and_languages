@@ -24,3 +24,7 @@ treeElem x (Node a left right)
     | x < a = treeElem x left
     | x > a = treeElem x right
 
+-- Create a tree from a list of values
+treeFromList :: (Ord a) => [a] -> Tree a
+treeFromList [] = EmptyTree
+treeFromList xs = foldr treeInsert EmptyTree xs
