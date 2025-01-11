@@ -7,6 +7,10 @@ enum Expr {
     Mul(Box<Expr>, Box<Expr>), // Multiplication
     Div(Box<Expr>, Box<Expr>), // Division
     Pow(Box<Expr>, Box<Expr>), // Power
+    Not(Box<Expr>), // Logical not
+    And(Box<Expr>, Box<Expr>),  // Logical and
+    Or(Box<Expr>, Box<Expr>),   // Logical or
+    Xor(Box<Expr>, Box<Expr>),  // Logical xor
     Val(f64),                  // Numeric value
 }
 
@@ -25,6 +29,34 @@ impl Expr {
                 e1.eval() / denom
             }
             Expr::Pow(e1, e2) => e1.eval().powf(e2.eval()),
+            Expr::Not(e) => {
+                if e.eval() != 0.0 {
+                    0.0
+                } else {
+                    1.0
+                }
+            },
+            Expr::And(e1, e2) => {
+                if e1.eval() != 0.0 && e2.eval() != 0.0 {
+                    1.0
+                } else {
+                    0.0
+                }
+            },
+            Expr::Or(e1, e2) => {
+                if e1.eval() != 0.0 || e2.eval() != 0.0 {
+                    1.0
+                } else {
+                    0.0
+                }
+            },
+            Expr::Xor(e1, e2) => {
+                if (e1.eval() != 0.0) ^ (e2.eval() != 0.0) {
+                    1.0
+                } else {
+                    0.0
+                }
+            },
         }
     }
 }
@@ -40,6 +72,11 @@ where
             Expr::Val(num) => Expr::Val(-num),
             _ => panic!("Error: numeric value expected after '-'"),
         }
+    } else if let Some(&'!') = chars.peek() {   // Logical not
+        chars.next();
+        let expr = parse_value(chars);
+        Expr::Not(Box::new(expr))
+
     } else if let Some(&'(') = chars.peek() {
         chars.next();
         let expr = parse_expr(chars);
@@ -100,11 +137,34 @@ where
     result
 }
 
+fn parse_logic<I>(chars: &mut Peekable<I>) -> Expr
+where
+    I: Iterator<Item = char>
+{
+    let expr = parse_term(chars);
+    let mut result = expr;
+    while let Some(&op) = chars.peek() {
+        if op == '&' || op == '|' || op == '^' {
+            chars.next();
+            let next_expr = parse_term(chars);
+            result = match op {
+                '&' => Expr::And(Box::new(result), Box::new(next_expr)),
+                '|' => Expr::Or(Box::new(result), Box::new(next_expr)),
+                '^' => Expr::Xor(Box::new(result), Box::new(next_expr)),
+                _ => panic!("Unexpected operator: {}. Only '&' '|' '^' are allowed at this stage", op),
+            };
+        } else {
+            break;
+        }
+    }
+    result
+}
+
 fn parse_expr<I>(chars: &mut Peekable<I>) -> Expr
 where
     I: Iterator<Item = char>
 {
-    let term = parse_term(chars);
+    let term = parse_logic(chars);
     let mut result = term;
     while let Some(&op) = chars.peek() {
         if op == '+' || op == '-' {
@@ -134,7 +194,7 @@ fn parse(input: &str) -> Expr {
 fn main() {
     use std::io::{self, Write};
 
-    println!("Insert a math expression, ex. 3 + 5 * (2 - 8)");
+    println!("Insert a math expression, ex. 3 + 5 * (2 - 8) or 1 & !0");
     let mut input = String::new();
     io::stdout().flush().unwrap();
     io::stdin().read_line(&mut input).unwrap();
