@@ -144,13 +144,13 @@ where
     let expr = parse_term(chars);
     let mut result = expr;
     while let Some(&op) = chars.peek() {
-        if op == '&' || op == '|' || op == '^' {
+        if op == '&' || op == '|' || op == 'x' {    // x for Xor
             chars.next();
             let next_expr = parse_term(chars);
             result = match op {
                 '&' => Expr::And(Box::new(result), Box::new(next_expr)),
                 '|' => Expr::Or(Box::new(result), Box::new(next_expr)),
-                '^' => Expr::Xor(Box::new(result), Box::new(next_expr)),
+                'x' => Expr::Xor(Box::new(result), Box::new(next_expr)),
                 _ => panic!("Unexpected operator: {}. Only '&' '|' '^' are allowed at this stage", op),
             };
         } else {
@@ -158,7 +158,7 @@ where
         }
     }
     result
-}
+}  
 
 fn parse_expr<I>(chars: &mut Peekable<I>) -> Expr
 where
