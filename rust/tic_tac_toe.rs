@@ -17,7 +17,6 @@ impl TicTacToe {
 
     fn player_x_move(&mut self, x: usize, y:usize) -> bool {    
         if self.board[x][y] == 'E' && TicTacToe::is_valid(x,y) {
-
             self.board[x][y] = 'X';
             return true
         } else {
@@ -27,7 +26,6 @@ impl TicTacToe {
 
     fn player_o_move(&mut self, x: usize, y:usize) -> bool {
         if self.board[x][y] == 'E' && TicTacToe::is_valid(x,y) {
-
             self.board[x][y] = 'O';
             return true
         } else {
@@ -87,7 +85,7 @@ impl TicTacToe {
 
         None
     }
-    
+
     fn is_full(&self) -> bool { // Check if there's no winner
         self.board.iter().all(|row| row.iter().all(|&cell| cell != 'E'))
     }
@@ -107,7 +105,7 @@ fn main() {
         let mut parts = input.trim().split_whitespace();    // Removes withespaces and splits the input
 
         if let (Some(row_str), Some(col_str)) = (parts.next(),parts.next()) {   // Extracts first two elements
-            if let(Ok(row), Ok(col)) = (row_str.parse::<usize>(), col_str.parse::<usize>()) {   // Parse them as usize
+            if let (Ok(row), Ok(col)) = (row_str.parse::<usize>(), col_str.parse::<usize>()) {   // Parse them as usize
                 let valid_move = if current_player == 'X'{  // Plays the correct move
                     game.player_x_move(row, col)
                 } else {
